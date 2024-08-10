@@ -19,17 +19,19 @@ func logRequest(w http.ResponseWriter, r *http.Request) {
 	// 获取客户端 IP 和端口
 	clientIP, clientPort, _ := net.SplitHostPort(r.RemoteAddr)
 
-	mutex.Lock()
-	// 打印请求信息
-	fmt.Printf("---\n")
-	fmt.Printf("Client: %s:%s\n", clientIP, clientPort)
-	fmt.Printf("Method: %s\n", r.Method)
-	fmt.Printf("URL: %s\n", r.URL)
-	fmt.Printf("Headers:\n")
+	var b bytes.Buffer
+	b.WriteString("---\n")
+	b.WriteString(fmt.Sprintf("Client: %s:%s\n", clientIP, clientPort))
+	b.WriteString(fmt.Sprintf("Method: %s\n", r.Method))
+	b.WriteString(fmt.Sprintf("URL: %s\n", r.URL))
+	b.WriteString("Headers:\n")
 	for k, v := range r.Header {
-		fmt.Printf("    %s: %v\n", k, v)
+		b.WriteString(fmt.Sprintf("    %s: %s\n", k, v))
 	}
-	fmt.Printf("Body:\n%s\n", bodyBytes)
+	b.WriteString(fmt.Sprintf("Body:\n%s\n", bodyBytes))
+
+	mutex.Lock()
+	fmt.Print(b.String())
 	mutex.Unlock()
 
 	// 返回 200 OK
